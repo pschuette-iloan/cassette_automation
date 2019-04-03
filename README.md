@@ -1,2 +1,2 @@
-# cassette_automation
-Project for maintaining mobile cassettes
+# Cassette Automation
+Project for maintaining mobile cassette consistency
