@@ -4,12 +4,15 @@
 # Script variables
 #
 output="$(pwd)/.output"
+endpoints_dir="$(pwd)/endpoints"
+baseurl="https://mobile.onemain.financial"
+
 
 #
 # Read a file into an array
 #
 function read_scenarios() {
-echo "reading scenarios from: $1"
+    echo "reading scenarios from: $1"
     scenarios=( )
     while IFS= read value
     do
@@ -17,7 +20,18 @@ echo "reading scenarios from: $1"
     done < $1
 }
 
+#
+# Read all endpoint files into an array
+#
+function read_endpoint_configs() {
+    echo "reading endpoint configs from: $1"
+    endpoints=($(ls -d "$1"/*))
+}
 
+
+#
+# Setup the output directory
+#
 function setup_output() {
     echo "Ouput directory: $output"
     if [ ! -d $output ]
@@ -28,6 +42,9 @@ function setup_output() {
     fi
 }
 
+#
+# Main program function
+#
 function main()
 {
     #
@@ -38,10 +55,11 @@ function main()
     #
     # 2. get a list of all the mobile endpoints
     #
-    endpoints=(
-            /api/v1/accounts
-            /api/v1/configurations/global
-        )
+    read_endpoint_configs $endpoints_dir
+#    endpoints=(
+#            /api/v1/accounts
+#            /api/v1/configurations/global
+#        )
 
     #
     # 3. Make the output directory
