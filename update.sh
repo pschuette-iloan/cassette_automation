@@ -26,8 +26,6 @@ function setup_output() {
     echo removing contents of output directory
     rm -rf "$output"/*
     fi
-    # clear the output directory
-    rm -rf $pwd/.output/*
 }
 
 function main()
