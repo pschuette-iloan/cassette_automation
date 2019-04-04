@@ -1,26 +1,41 @@
 #!/bin/bash
 
+#
+# Script variables
+#
+output="$(pwd)/.output"
 
 #
-# Call and endpoint and dump the outputi
-# arg1= endpoint
-# arg2= destination
+# Read a file into an array
 #
-function call_endpoint() {
-    echo calling into endpoint $0
-    
+function read_scenarios() {
+echo "reading scenarios from: $1"
+    scenarios=( )
+    while IFS= read value
+    do
+        scenarios+=($value)
+    done < $1
 }
 
+
+function setup_output() {
+    echo "Ouput directory: $output"
+    if [ ! -d $output ]
+    then mkdir $output
+    else
+    echo removing contents of output directory
+    rm -rf "$output"/*
+    fi
+    # clear the output directory
+    rm -rf $pwd/.output/*
+}
 
 function main()
 {
     #
     # 1. get a list of all the scenarios
     #
-    scenarios=(
-            happy_path
-            past_due_account_with_next_cycle
-        )
+    read_scenarios "$(pwd)/scenarios.txt"
 
     #
     # 2. get a list of all the mobile endpoints
@@ -30,27 +45,24 @@ function main()
             /api/v1/configurations/global
         )
 
-    # Iterate through scenarios printing endpoints
-
     #
     # 3. Make the output directory
     # Hidden during creation
     #
-    if [ ! -d .output ]
-    then mkdir .output
-    fi
-    # clear the output directory
-    rm -r .output/*
+    setup_output
+
 
     for scenario in "${scenarios[@]}"
     do
         # Print out the scenario
-        echo $scenario
+        echo "Building scenario: $scenario"
         # Make a directory for the scenario in the output
-        mkdir "$(pwd)/.output/$scenario"
+        scenario_dir="$(pwd)/.output/$scenario"
+        mkdir $scenario_dir
+        # Loop through the endpoints, pump into output directory
         for endpoint in "${endpoints[@]}"
         do
-            echo $endpoint
+        echo "Preparing endpoint: $endpoint"
         done
     done
 }
