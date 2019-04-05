@@ -80,6 +80,41 @@ function setup_auth_args() {
 }
 
 #
+# Call the endpoint and dump the output
+#
+function call_endpoint() {
+# $1 = scenario
+# $2 = endpoint config file
+# $3 = output directory
+    source $2
+
+    setup_auth_args $1
+    # If this is a GET request, we can ignore data
+    if [ "$method" == "GET" ] || [ "$method" == "DELETE" ]
+    then
+        cmd="curl -X $method $baseurl$endpoint_destination $args --verbose | jq > $3/$output_file"
+    else
+        cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' | jq > $3/$output_file"
+    fi
+
+    echo "Calling: $cmd"
+    eval $cmd
+}
+
+#
+# Call the accounts endpoint and initialize account variables
+#
+function call_accounts_endpoint() {
+# $1 = Scenario
+# $2 = Scenario directory
+    call_endpoint $1 $session_dir/accounts $2
+    # Set the account_id variable for endpoints containing it
+    account_id=$(cat $2/$output_file | jq -r '.data[0]."id"')
+    echo "Account ID: $account_id"
+}
+
+
+#
 # Call the session URL to create a new session
 #
 function prepare_session() {
@@ -91,7 +126,7 @@ function prepare_session() {
     source $2
 
     setup_args $1
-    cmd="curl -X $method $baseurl$endpoint_destination $args --cookie $cookies --cookie-jar $cookies --verbose -u blah:blah | jq > $3/$output_file"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --cookie $cookies --cookie-jar $cookies -u blah:blah | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
@@ -108,24 +143,7 @@ function prepare_session() {
     # Answer challenge question
     setup_auth_args $1
     echo "date: $data"
-    cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies --verbose | jq > $3/$output_file"
-    echo "Calling: $cmd"
-    eval $cmd
-
-}
-
-#
-# Call the endpoint and dump the output
-#
-function call_endpoint() {
-# $1 = scenario
-# $2 = endpoint config file
-# $3 = output directory
-    source $2
-
-    setup_auth_args $1
-# Might need to switch between method types here
-    cmd="curl -X $method $baseurl$endpoint_destination $args --verbose | jq > $3/$output_file"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
@@ -153,7 +171,7 @@ function main()
     read_standard_headers $headers_cfg
 
     #
-    # 4. Make the output directory
+    # 4. Make or clear out the output directory
     # Hidden during creation
     #
     clean_dir $output
@@ -170,7 +188,9 @@ function main()
 
         mkdir $scenario_dir
 
-        prepare_session $scenario "$session_dir"/login $scenario_dir
+        prepare_session $scenario $session_dir/login $scenario_dir
+
+        call_accounts_endpoint $scenario $scenario_dir
 
         # Loop through the endpoints, pump into output directory
         for endpoint in "${endpoints[@]}"
@@ -183,7 +203,7 @@ function main()
     done
 
     # Remove the temp directory
-    # rm -rf $temp
+    rm -rf $temp
 }
 
 

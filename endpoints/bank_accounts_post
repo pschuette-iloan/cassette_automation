@@ -1,0 +1,4 @@
+output_file='PostBankAccounts.json'
+endpoint_destination="/api/v1/bank-accounts"
+method='POST'
+data="{\"data\":{\"attributes\":{\"nickname\":\"My-Checking-Account\",\"primary\":true,\"routing-number\":\"071000013\",\"account-number\":\"123456\",\"type\":\"checking\"}}}"

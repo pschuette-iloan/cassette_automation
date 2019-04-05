@@ -1,0 +1,4 @@
+output_file='GetPaperlessBilling.json'
+endpoint_destination="/api/v1/accounts/$account_id/paperless-billing-enrollment"
+method='GET'
+data=""

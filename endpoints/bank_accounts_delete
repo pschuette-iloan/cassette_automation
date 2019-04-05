@@ -1,0 +1,5 @@
+output_file='DeleteBankAccounts.json'
+bank_account_id='d90853f1-c81f-58f0-9c14-8f45d8612a10'
+endpoint_destination="/api/v1/bank-accounts/$bank_account_id"
+method='DELETE'
+data=""
