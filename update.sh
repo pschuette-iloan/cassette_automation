@@ -63,10 +63,10 @@ function read_standard_headers() {
 # Setup the headers into a header file
 #
 function setup_args() {
-    args="-H \"DISCO: $1\""
+    args="-H 'DISCO: $1'"
     for header in "${headers[@]}"
     do
-    args="$args -H \"$header\""
+    args="$args -H '$header'"
     done
     echo "Args: $args"
 }
@@ -75,7 +75,7 @@ function setup_auth_args() {
     setup_args $1
     echo adding auth token to args
     # Add the auth token to args
-    args="$args -H \"Authorization: Token token=$token\""
+    args="$args -H 'Authorization: Token token=$token'"
     echo "Args: $args"
 }
 
@@ -90,7 +90,7 @@ function prepare_session() {
     # source function variables
     source $2
 
-    setup_args 'success'
+    setup_args $1
     cmd="curl -X $method $baseurl$endpoint_destination $args --cookie $cookies --cookie-jar $cookies --verbose -u blah:blah | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
@@ -108,7 +108,7 @@ function prepare_session() {
     # Answer challenge question
     setup_auth_args $1
     echo "date: $data"
-    cmd="curl -X $method $baseurl$endpoint_destination $args --data $data --cookie $cookies --cookie-jar $cookies | jq > $3/$output_file"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --data '$data' --cookie $cookies --cookie-jar $cookies --verbose | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
