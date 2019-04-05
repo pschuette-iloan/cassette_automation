@@ -17,6 +17,7 @@ baseurl="https://mobile.onemain.financial"
 # Create directory or remove contents
 #
 function clean_dir() {
+# $1 = directory to be cleaned
     echo "Cleaning Directory: $1"
     if [ ! -d $1 ]
     then mkdir $1
@@ -29,6 +30,7 @@ function clean_dir() {
 # Read a file into an array
 #
 function read_scenarios() {
+# $1 = scenarios.txt file
     echo "reading scenarios from: $1"
     scenarios=( )
     while IFS= read value
@@ -41,6 +43,7 @@ function read_scenarios() {
 # Read all endpoint files into an array
 #
 function read_endpoint_configs() {
+# $1 = endpoints directory
     echo "reading endpoint configs from: $1"
     endpoints=($(ls -d "$1"/*))
 }
@@ -49,6 +52,7 @@ function read_endpoint_configs() {
 # Read the standard headers from header file
 #
 function read_standard_headers() {
+# $1 = headers file
     echo "reading standard headers from: $1"
     source $1
     # Print the headers
@@ -63,6 +67,7 @@ function read_standard_headers() {
 # Setup the headers into a header file
 #
 function setup_args() {
+# $1 = scenario
     args="-H 'DISCO: $1'"
     for header in "${headers[@]}"
     do
@@ -72,6 +77,7 @@ function setup_args() {
 }
 
 function setup_auth_args() {
+# $1 = scenario
     setup_args $1
     echo adding auth token to args
     # Add the auth token to args
