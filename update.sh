@@ -91,7 +91,7 @@ function prepare_session() {
     source $2
 
     setup_args 'success'
-    cmd="curl -X $method $baseurl$endpoint_destination $args --cookie $cookies --cookie-jar $cookies -o $3/$output_file --verbose -u blah:blah"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --cookie $cookies --cookie-jar $cookies --verbose -u blah:blah | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
@@ -108,7 +108,7 @@ function prepare_session() {
     # Answer challenge question
     setup_auth_args $1
     echo "date: $data"
-    cmd="curl -X $method $baseurl$endpoint_destination $args --data $data --cookie $cookies --cookie-jar $cookies -o $3/$output_file"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --data $data --cookie $cookies --cookie-jar $cookies | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
