@@ -1,0 +1,4 @@
+output_file='GetDirectPayScheduledPayments.json'
+endpoint_destination='/api/v1/accounts/$account_id/direct-pay-scheduled-payments'
+method='GET'
+data=""

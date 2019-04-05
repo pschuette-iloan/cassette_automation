@@ -1,0 +1,4 @@
+output_file='DeleteBankAccounts.json'
+endpoint_destination="/api/v1/bank-accounts/$bank_account_id"
+method='PATCH'
+data="{\"data\":{\"attributes\":{\"primary\":true}}}"

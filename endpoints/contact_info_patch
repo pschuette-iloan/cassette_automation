@@ -1,0 +1,4 @@
+output_file='PatchContactInformation.json'
+endpoint_destination="/api/v1/accountsi/$account_id/contact-information"
+method='PATCH'
+data="{\"data\":{\"id\":\"contact-information\",\"type\":\"contact-informations\",\"attributes\":{\"address\":{\"line-2\":\"2nd Floor (New update)\"},\"secondary-phone\":{\"phone-number\":\"2223334444\",\"type\":\"home\"}}}}"
