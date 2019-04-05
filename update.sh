@@ -71,6 +71,14 @@ function setup_args() {
     echo "Args: $args"
 }
 
+function setup_auth_args() {
+    setup_args $1
+    echo adding auth token to args
+    # Add the auth token to args
+    args="$args -H \"Authorization: Token token=$token\""
+    echo "Args: $args"
+}
+
 #
 # Call the session URL to create a new session
 #
@@ -95,7 +103,15 @@ function prepare_session() {
     echo "Challenge Type: $challenge_type"
     echo "Challenge ID: $challenge_id"
 
-    # May need to answer challenge questions
+    # Source arguments for challenge questions
+    source "$session_dir"/challenges_verification
+    # Answer challenge question
+    setup_auth_args $1
+    echo "date: $data"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --data $data --cookie $cookies --cookie-jar $cookies -o $3/$output_file"
+    echo "Calling: $cmd"
+    eval $cmd
+
 }
 
 #
