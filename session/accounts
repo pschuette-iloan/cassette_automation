@@ -1,4 +1,0 @@
-output_file='Accounts.json'
-endpoint_destination='/api/v1/accounts'
-method='GET'
-data=""

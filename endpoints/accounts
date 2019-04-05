@@ -1,0 +1,8 @@
+output_file='Accounts.json'
+endpoint_destination='/api/v1/accounts'
+method='GET'
+data=""
+function on_success() {
+	account_id=$(cat $3/$output_file | jq -r '.data[0]."id"')
+	echo "Account ID: $account_id"
+}

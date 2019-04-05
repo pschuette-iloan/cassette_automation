@@ -105,19 +105,33 @@ function call_endpoint() {
 
     echo "Calling: $cmd"
     eval $cmd
+
+    # TODO: Verify success?
+
+    if [ -n "$(LC_ALL=C type -t on_success)" ] && [ "$(LC_ALL=C type -t on_success)" = function ]
+    then
+    echo Calling on_success function
+    # There is an on_success call. Call it
+    # Pass calling args into on_success
+    on_success $1 $2 $3
+    # Unset the on_success function
+    unset -f on_success
+    else
+    echo No on_success function defined
+    fi
 }
 
-#
-# Call the accounts endpoint and initialize account variables
-#
-function call_accounts_endpoint() {
-# $1 = Scenario
-# $2 = Scenario directory
-    call_endpoint $1 $session_dir/accounts $2
-    # Set the account_id variable for endpoints containing it
-    account_id=$(cat $2/$output_file | jq -r '.data[0]."id"')
-    echo "Account ID: $account_id"
-}
+##
+## Call the accounts endpoint and initialize account variables
+##
+#function call_accounts_endpoint() {
+## $1 = Scenario
+## $2 = Scenario directory
+#    call_endpoint $1 $session_dir/accounts $2
+#    # Set the account_id variable for endpoints containing it
+#    account_id=$(cat $2/$output_file | jq -r '.data[0]."id"')
+#    echo "Account ID: $account_id"
+#}
 
 
 #
@@ -168,7 +182,7 @@ function main()
     #
     # 2. get a list of all the mobile endpoints
     #
-    read_endpoint_configs $endpoints_dir
+    # read_endpoint_configs $endpoints_dir
 
     #
     # 3. get the standard headers as variables
@@ -196,13 +210,12 @@ function main()
 
         prepare_session $scenario $session_dir/login $scenario_dir
 
-        call_accounts_endpoint $scenario $scenario_dir
-
+        source $endpoints_dir/.config
         # Loop through the endpoints, pump into output directory
-        for endpoint in "${endpoints[@]}"
+        for endpoint in "${ordered_endpoints[@]}"
         do
             echo "Preparing endpoint: $endpoint"
-            call_endpoint $scenario $endpoint $scenario_dir
+            call_endpoint $scenario $endpoints_dir/$endpoint $scenario_dir
         done
 
         # TODO: end session (delete)
