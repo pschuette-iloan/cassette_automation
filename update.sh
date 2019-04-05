@@ -121,19 +121,6 @@ function call_endpoint() {
     fi
 }
 
-##
-## Call the accounts endpoint and initialize account variables
-##
-#function call_accounts_endpoint() {
-## $1 = Scenario
-## $2 = Scenario directory
-#    call_endpoint $1 $session_dir/accounts $2
-#    # Set the account_id variable for endpoints containing it
-#    account_id=$(cat $2/$output_file | jq -r '.data[0]."id"')
-#    echo "Account ID: $account_id"
-#}
-
-
 #
 # Call the session URL to create a new session
 #
