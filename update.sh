@@ -108,7 +108,7 @@ function prepare_session() {
     # Answer challenge question
     setup_auth_args $1
     echo "date: $data"
-    cmd="curl -X $method $baseurl$endpoint_destination $args --data '$data' --cookie $cookies --cookie-jar $cookies --verbose | jq > $3/$output_file"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies --verbose | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
@@ -123,9 +123,9 @@ function call_endpoint() {
 # $3 = output directory
     source $2
 
-    setup_args $1
+    setup_auth_args $1
 # Might need to switch between method types here
-    cmd="curl -i $args -X $method --data $data $baseurl$endpoint_destination -o $3/$output_file"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --verbose | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
@@ -175,8 +175,8 @@ function main()
         # Loop through the endpoints, pump into output directory
         for endpoint in "${endpoints[@]}"
         do
-            echo "Would be Preparing endpoint: $endpoint"
-# call_endpoint $scenario $endpoint $scenario_dir
+            echo "Preparing endpoint: $endpoint"
+            call_endpoint $scenario $endpoint $scenario_dir
         done
 
         # TODO: end session (delete)
