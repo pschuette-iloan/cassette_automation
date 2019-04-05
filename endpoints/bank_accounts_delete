@@ -1,0 +1,8 @@
+output_file='DeleteBankAccounts.json'
+endpoint_destination="/api/v1/bank-accounts/$bank_account_id"
+method='DELETE'
+data=""
+function on_success() {
+	unset bank_account_id
+	echo 'unset bank_account_id!'
+}

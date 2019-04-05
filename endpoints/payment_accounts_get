@@ -1,0 +1,8 @@
+output_file='PaymentAccounts.json'
+endpoint_destination="/api/v1/payment-accounts"
+method='GET'
+data=""
+function on_success() {
+	bank_account_id=$(cat $3/$output_file | jq -r '.data[0]."id"')
+	echo "Bank Account ID: $bank_account_id"
+}

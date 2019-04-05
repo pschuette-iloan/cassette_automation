@@ -17,6 +17,7 @@ baseurl="https://mobile.onemain.financial"
 # Create directory or remove contents
 #
 function clean_dir() {
+# $1 = directory to be cleaned
     echo "Cleaning Directory: $1"
     if [ ! -d $1 ]
     then mkdir $1
@@ -29,6 +30,7 @@ function clean_dir() {
 # Read a file into an array
 #
 function read_scenarios() {
+# $1 = scenarios.txt file
     echo "reading scenarios from: $1"
     scenarios=( )
     while IFS= read value
@@ -41,6 +43,7 @@ function read_scenarios() {
 # Read all endpoint files into an array
 #
 function read_endpoint_configs() {
+# $1 = endpoints directory
     echo "reading endpoint configs from: $1"
     endpoints=($(ls -d "$1"/*))
 }
@@ -49,6 +52,7 @@ function read_endpoint_configs() {
 # Read the standard headers from header file
 #
 function read_standard_headers() {
+# $1 = headers file
     echo "reading standard headers from: $1"
     source $1
     # Print the headers
@@ -63,6 +67,7 @@ function read_standard_headers() {
 # Setup the headers into a header file
 #
 function setup_args() {
+# $1 = scenario
     args="-H 'DISCO: $1'"
     for header in "${headers[@]}"
     do
@@ -72,11 +77,48 @@ function setup_args() {
 }
 
 function setup_auth_args() {
+# $1 = scenario
     setup_args $1
     echo adding auth token to args
     # Add the auth token to args
     args="$args -H 'Authorization: Token token=$token'"
     echo "Args: $args"
+}
+
+#
+# Call the endpoint and dump the output
+#
+function call_endpoint() {
+# $1 = scenario
+# $2 = endpoint config file
+# $3 = output directory
+    source $2
+
+    setup_auth_args $1
+    # If this is a GET request, we can ignore data
+    if [ "$method" == "GET" ] || [ "$method" == "DELETE" ]
+    then
+        cmd="curl -X $method $baseurl$endpoint_destination $args --verbose | jq > $3/$output_file"
+    else
+        cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' | jq > $3/$output_file"
+    fi
+
+    echo "Calling: $cmd"
+    eval $cmd
+
+    # TODO: Verify success?
+
+    if [ -n "$(LC_ALL=C type -t on_success)" ] && [ "$(LC_ALL=C type -t on_success)" = function ]
+    then
+    echo Calling on_success function
+    # There is an on_success call. Call it
+    # Pass calling args into on_success
+    on_success $1 $2 $3
+    # Unset the on_success function
+    unset -f on_success
+    else
+    echo No on_success function defined
+    fi
 }
 
 #
@@ -91,7 +133,7 @@ function prepare_session() {
     source $2
 
     setup_args $1
-    cmd="curl -X $method $baseurl$endpoint_destination $args --cookie $cookies --cookie-jar $cookies --verbose -u blah:blah | jq > $3/$output_file"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --cookie $cookies --cookie-jar $cookies -u blah:blah | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
@@ -108,24 +150,7 @@ function prepare_session() {
     # Answer challenge question
     setup_auth_args $1
     echo "date: $data"
-    cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies --verbose | jq > $3/$output_file"
-    echo "Calling: $cmd"
-    eval $cmd
-
-}
-
-#
-# Call the endpoint and dump the output
-#
-function call_endpoint() {
-# $1 = scenario
-# $2 = endpoint config file
-# $3 = output directory
-    source $2
-
-    setup_auth_args $1
-# Might need to switch between method types here
-    cmd="curl -X $method $baseurl$endpoint_destination $args --verbose | jq > $3/$output_file"
+    cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
 
@@ -144,7 +169,7 @@ function main()
     #
     # 2. get a list of all the mobile endpoints
     #
-    read_endpoint_configs $endpoints_dir
+    # read_endpoint_configs $endpoints_dir
 
     #
     # 3. get the standard headers as variables
@@ -153,7 +178,7 @@ function main()
     read_standard_headers $headers_cfg
 
     #
-    # 4. Make the output directory
+    # 4. Make or clear out the output directory
     # Hidden during creation
     #
     clean_dir $output
@@ -170,20 +195,21 @@ function main()
 
         mkdir $scenario_dir
 
-        prepare_session $scenario "$session_dir"/login $scenario_dir
+        prepare_session $scenario $session_dir/login $scenario_dir
 
+        source $endpoints_dir/.config
         # Loop through the endpoints, pump into output directory
-        for endpoint in "${endpoints[@]}"
+        for endpoint in "${ordered_endpoints[@]}"
         do
             echo "Preparing endpoint: $endpoint"
-            call_endpoint $scenario $endpoint $scenario_dir
+            call_endpoint $scenario $endpoints_dir/$endpoint $scenario_dir
         done
 
         # TODO: end session (delete)
     done
 
     # Remove the temp directory
-    # rm -rf $temp
+    rm -rf $temp
 }
 
 

@@ -1,0 +1,4 @@
+output_file='PaymentAccounts.json'
+endpoint_destination="/api/v1/payment-accounts"
+method='GET'
+data=""
