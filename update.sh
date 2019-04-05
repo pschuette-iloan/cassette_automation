@@ -167,12 +167,7 @@ function main()
     read_scenarios "$(pwd)/scenarios.txt"
 
     #
-    # 2. get a list of all the mobile endpoints
-    #
-    # read_endpoint_configs $endpoints_dir
-
-    #
-    # 3. get the standard headers as variables
+    # 2. get the standard headers as variables
     # Store a list of all standard headers in array
     #
     read_standard_headers $headers_cfg
@@ -183,6 +178,9 @@ function main()
     #
     clean_dir $output
 
+    #
+    # 4. Iterate through all the scenarios
+    #
     for scenario in "${scenarios[@]}"
     do
         # Print out the scenario
@@ -207,9 +205,6 @@ function main()
 
         # TODO: end session (delete)
     done
-
-    # Remove the temp directory
-    rm -rf $temp
 }
 
 
