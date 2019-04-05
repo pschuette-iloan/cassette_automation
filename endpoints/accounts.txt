@@ -1,2 +1,0 @@
-Accounts.json
-/api/v1/accounts

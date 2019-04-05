@@ -1,3 +1,0 @@
-device-id my-device-id
-Accept application/vnd.api+json
-Content-Type application/vnd.api+json

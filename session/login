@@ -1,0 +1,4 @@
+output_file='Login.json'
+endpoint_destination='/api/v1/sessions'
+method='POST'
+data="{}"
