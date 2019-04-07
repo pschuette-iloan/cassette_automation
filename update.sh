@@ -10,6 +10,7 @@ session_dir="$(pwd)/session"
 endpoints_dir="$(pwd)/endpoints"
 headers_cfg="$(pwd)/headers"
 baseurl="https://mobile.onemain.financial"
+ios_product="$(pwd)/Cassettes.bundle"
 
 # TODO: Check dependencies
 
@@ -153,6 +154,31 @@ function prepare_session() {
     cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
+}
+
+#
+# find all empty files and print empty json object to them
+#
+function fill_empty_files() {
+
+    for i in $(find $output/** -type f -empty );
+    do
+    echo '{}' >> $i
+    done
+}
+
+#
+# Prepare output for iOS cassettes
+#
+function prepare_ios() {
+
+# Create the ios product
+    clean_dir $ios_product
+
+# Copy the output to the ios product
+    cp -R $output/* $ios_product
+# Move happy_path scenario to baseline
+    mv "$ios_product"/happy_path "$ios_product"/baseline
 
 }
 
@@ -205,6 +231,12 @@ function main()
 
         # TODO: end session (delete)
     done
+
+# File the empty files in the output
+    fill_empty_files
+
+# Prepare the ios product
+    prepare_ios
 }
 
 
