@@ -139,9 +139,12 @@ function prepare_session() {
     eval $cmd
 
     # Setup the session args
+    session_id=$(cat $3/$output_file | jq -r '.data."id"')
     token=$(cat $3/$output_file | jq -r '.data.attributes."access-token"')
     challenge_type=$(cat $3/$output_file | jq -r '.data.attributes."device-challenge-type"')
     challenge_id=$(cat $3/$output_file | jq -r '.data.relationships."device-challenges".data[0]."id"')
+    # Print to verify session variables
+    echo "Session ID: $session_id"
     echo "Token: $token"
     echo "Challenge Type: $challenge_type"
     echo "Challenge ID: $challenge_id"
@@ -154,6 +157,25 @@ function prepare_session() {
     cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
+}
+
+#
+# End the logged in session between scenarios
+#
+function end_session() {
+# $1 senario
+# $2 output directory
+# End the session
+
+    call_endpoint $1 $session_dir/logout $2
+
+# Clean up some of the variables
+    unset session_id
+    unset token
+    unset challenge_type
+    unset challenge_id
+    unset account_id
+    unset args
 }
 
 #
@@ -229,7 +251,8 @@ function main()
             call_endpoint $scenario $endpoints_dir/$endpoint $scenario_dir
         done
 
-        # TODO: end session (delete)
+        # end session (delete)
+        end_session $scenario $scenario_dir
     done
 
 # File the empty files in the output

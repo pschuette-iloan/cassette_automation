@@ -1,0 +1,4 @@
+output_file='Logout.json'
+endpoint_destination='api/v1/sessions/$session_id'
+method='DELETE'
+data="{}"
