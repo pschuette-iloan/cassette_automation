@@ -1,0 +1,4 @@
+output_file='PostInquiries.json'
+endpoint_destination='/api/v1/inquiries'
+method='POST'
+data="{\"data\":{\"type\":\"inquiries\",\"attributes\":{\"phone_number\":\"555-444-1122\",\"name\":\"Firstname Lastname\",\"email\":\"test@example.com\",\"account_number\":\"0001234\",\"message\":\"This is a test message.\",\"reason\":\"mobile_app_help_payments\"}}}"
