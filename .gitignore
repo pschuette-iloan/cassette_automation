@@ -3,3 +3,5 @@
 .temp
 # Ignore the iOS product
 Cassettes.bundle
+# Ignore Android product
+cassettes/
