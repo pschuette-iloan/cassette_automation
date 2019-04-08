@@ -11,6 +11,7 @@ endpoints_dir="$(pwd)/endpoints"
 headers_cfg="$(pwd)/headers"
 baseurl="https://mobile.onemain.financial"
 ios_product="$(pwd)/Cassettes.bundle"
+android_product="$(pwd)/cassettes"
 
 # TODO: Check dependencies
 
@@ -199,8 +200,20 @@ function prepare_ios() {
 
 # Copy the output to the ios product
     cp -R $output/* $ios_product
-# Move happy_path scenario to baseline
-    mv "$ios_product"/happy_path "$ios_product"/baseline
+
+
+}
+
+#
+#  Prepare output for Android cassettes
+#
+function prepare_android() {
+
+# Create/clean the Android product directory
+    clean_dir $android_product
+
+# Copy the output to Android product directory
+    cp -R $output/* $android_product
 
 }
 
@@ -258,8 +271,11 @@ function main()
 # File the empty files in the output
     fill_empty_files
 
+# Move happy_path scenario to baseline
+    mv "$output"/happy_path "$output"/baseline
 # Prepare the ios product
     prepare_ios
+    prepare_android
 }
 
 
