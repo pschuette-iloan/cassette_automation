@@ -9,7 +9,7 @@ cookies="$temp/cookies.txt"
 session_dir="$(pwd)/session"
 endpoints_dir="$(pwd)/endpoints"
 headers_cfg="$(pwd)/headers"
-baseurl="https://mobile.onemain.financial"
+baseurl="https://mobile01.onemain.financial"
 ios_product="$(pwd)/Cassettes.bundle"
 android_product="$(pwd)/cassettes"
 
@@ -39,15 +39,6 @@ function read_scenarios() {
     do
         scenarios+=($value)
     done < $1
-}
-
-#
-# Read all endpoint files into an array
-#
-function read_endpoint_configs() {
-# $1 = endpoints directory
-    echo "reading endpoint configs from: $1"
-    endpoints=($(ls -d "$1"/*))
 }
 
 #
