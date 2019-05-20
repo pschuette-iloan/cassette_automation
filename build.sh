@@ -9,7 +9,7 @@ cookies="$temp/cookies.txt"
 session_dir="$(pwd)/session"
 endpoints_dir="$(pwd)/endpoints"
 headers_cfg="$(pwd)/headers"
-baseurl="https://mobile01.onemain.financial"
+baseurl="https://mobile02.onemain.financial"
 ios_product="$(pwd)/Cassettes.bundle"
 android_product="$(pwd)/cassettes"
 
