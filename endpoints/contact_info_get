@@ -1,0 +1,4 @@
+output_file='ContactInformation.json'
+endpoint_destination="/api/v1/accounts/$account_id/contact-information"
+method='GET'
+data=""

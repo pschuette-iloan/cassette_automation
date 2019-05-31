@@ -1,0 +1,7 @@
+output_file='ResponseOutput.json'		# Filename for cassette per scenario
+endpoint_destination='/api/v1/path/to/endpoint' # Do not include host
+method='GET POST PATCH DELETE' 			# Pick one
+data="{\"data\":{\"hello\":\"world\"}}"		# Be sure to flatten and escape
+function on_success() {				# Optional bash function to add after the endpoint succeeds
+	echo Hello World!
+}

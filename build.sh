@@ -9,7 +9,9 @@ cookies="$temp/cookies.txt"
 session_dir="$(pwd)/session"
 endpoints_dir="$(pwd)/endpoints"
 headers_cfg="$(pwd)/headers"
-baseurl="https://mobile.onemain.financial"
+baseurl="https://mobile02.onemain.financial"
+ios_product="$(pwd)/Cassettes.bundle"
+android_product="$(pwd)/cassettes"
 
 # TODO: Check dependencies
 
@@ -37,15 +39,6 @@ function read_scenarios() {
     do
         scenarios+=($value)
     done < $1
-}
-
-#
-# Read all endpoint files into an array
-#
-function read_endpoint_configs() {
-# $1 = endpoints directory
-    echo "reading endpoint configs from: $1"
-    endpoints=($(ls -d "$1"/*))
 }
 
 #
@@ -137,10 +130,20 @@ function prepare_session() {
     echo "Calling: $cmd"
     eval $cmd
 
+# Check for login errors
+    if [ $(cat $3/$output_file | jq 'has("errors")') == true ]; then
+    login_success=0
+    return 0
+    fi
+    echo Login Success!
+
     # Setup the session args
+    session_id=$(cat $3/$output_file | jq -r '.data."id"')
     token=$(cat $3/$output_file | jq -r '.data.attributes."access-token"')
     challenge_type=$(cat $3/$output_file | jq -r '.data.attributes."device-challenge-type"')
     challenge_id=$(cat $3/$output_file | jq -r '.data.relationships."device-challenges".data[0]."id"')
+    # Print to verify session variables
+    echo "Session ID: $session_id"
     echo "Token: $token"
     echo "Challenge Type: $challenge_type"
     echo "Challenge ID: $challenge_id"
@@ -153,6 +156,100 @@ function prepare_session() {
     cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
+
+# Check for challenge question errors
+    if [ $(cat $3/$output_file | jq 'has("errors")') == true ]; then
+    login_success=0
+    return 0
+    fi
+    echo Challenge Question Success !
+    login_success=1
+    return 1
+}
+
+#
+# End the logged in session between scenarios
+#
+function end_session() {
+# $1 senario
+# $2 output directory
+# End the session
+
+    call_endpoint $1 $session_dir/logout $2
+
+# Clean up some of the variables
+    unset login_success
+    unset session_id
+    unset token
+    unset challenge_type
+    unset challenge_id
+    unset account_id
+    unset args
+}
+
+#
+# find all empty files and print empty json object to them
+#
+function fill_empty_files() {
+
+    for i in $(find $output/** -type f -empty );
+    do
+    echo '{}' >> $i
+    done
+}
+
+#
+# find all the files that match the baseline counterpart and remove
+#
+function remove_baseline_dupes() {
+
+    baseline_path="$output/baseline"
+
+    for scenario in "${scenarios[@]}"
+    do
+    if [ "$scenario" == "happy_path" ]; then
+# Ignore the happy path scenario
+        continue
+    fi
+
+# Compare all the files in scenario directory to files in baseline
+# If they have the same content, remove them
+    scenario_path=$output/$scenario
+    for file in $(ls $scenario_path)
+    do
+# If files are the same, boot the scenario file
+    cmp --silent $scenario_path/$file $baseline_path/$file && rm $scenario_path/$file || echo "Unique scenario file: $scenario - $file"
+    done
+    done
+# Good house keeping
+    unset baseline_path
+    unset scenario_path
+}
+
+#
+# Prepare output for iOS cassettes
+#
+function prepare_ios() {
+
+# Create the ios product
+    clean_dir $ios_product
+
+# Copy the output to the ios product
+    cp -R $output/* $ios_product
+
+
+}
+
+#
+#  Prepare output for Android cassettes
+#
+function prepare_android() {
+
+# Create/clean the Android product directory
+    clean_dir $android_product
+
+# Copy the output to Android product directory
+    cp -R $output/* $android_product
 
 }
 
@@ -189,11 +286,16 @@ function main()
         clean_dir $temp
 
         # Make a directory for the scenario in the output
-        scenario_dir="$(pwd)/.output/$scenario"
+        scenario_dir="$output"/"$scenario"
 
         mkdir $scenario_dir
 
         prepare_session $scenario $session_dir/login $scenario_dir
+        # Continue in loop on login success
+        if [[ $login_success == 0 ]]
+        then
+        continue
+        fi
 
         source $endpoints_dir/.config
         # Loop through the endpoints, pump into output directory
@@ -203,10 +305,25 @@ function main()
             call_endpoint $scenario $endpoints_dir/$endpoint $scenario_dir
         done
 
-        # TODO: end session (delete)
+        # end session (delete)
+        end_session $scenario $scenario_dir
     done
+
+# File the empty files in the output
+    fill_empty_files
+
+# Move happy_path scenario to baseline
+    mv "$output"/happy_path "$output"/baseline
+
+# Remove the files in each scenario that are identical to baseline
+    remove_baseline_dupes
+
+# Prepare the ios product
+    prepare_ios
+    prepare_android
 }
 
 
 # Run the program
 main
+
