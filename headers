@@ -3,4 +3,4 @@ device_id='92061aae-6b8e-4080-bc8d-c4237c5c9554'
 headers[0]="device-id: $device_id"
 headers[1]="accept: application/vnd.api+json"
 headers[2]="Content-Type: application/vnd.api+json"
-headers[3]="User-Agent: OneMainMobileAppStore/6.8.4 (com.springleaf.onemain.test; build:6; iOS 11.1.0) Alamofire/4.6.0"
+headers[3]="User-Agent: OneMainMobileAppStore/6.9.0 (com.springleaf.onemain.test; build:9; iOS 11.1.0) Alamofire/4.6.0"
