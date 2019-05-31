@@ -130,6 +130,13 @@ function prepare_session() {
     echo "Calling: $cmd"
     eval $cmd
 
+# Check for login errors
+    if [ $(cat $3/$output_file | jq 'has("errors")') == true ]; then
+    login_success=0
+    return 0
+    fi
+    echo Login Success!
+
     # Setup the session args
     session_id=$(cat $3/$output_file | jq -r '.data."id"')
     token=$(cat $3/$output_file | jq -r '.data.attributes."access-token"')
@@ -149,6 +156,15 @@ function prepare_session() {
     cmd="curl -X $method $baseurl$endpoint_destination $args --data-raw '$data' --cookie $cookies --cookie-jar $cookies | jq > $3/$output_file"
     echo "Calling: $cmd"
     eval $cmd
+
+# Check for challenge question errors
+    if [ $(cat $3/$output_file | jq 'has("errors")') == true ]; then
+    login_success=0
+    return 0
+    fi
+    echo Challenge Question Success !
+    login_success=1
+    return 1
 }
 
 #
@@ -162,6 +178,7 @@ function end_session() {
     call_endpoint $1 $session_dir/logout $2
 
 # Clean up some of the variables
+    unset login_success
     unset session_id
     unset token
     unset challenge_type
@@ -246,6 +263,11 @@ function main()
         mkdir $scenario_dir
 
         prepare_session $scenario $session_dir/login $scenario_dir
+        # Continue in loop on login success
+        if [[ $login_success == 0 ]]
+        then
+        continue
+        fi
 
         source $endpoints_dir/.config
         # Loop through the endpoints, pump into output directory
@@ -272,3 +294,4 @@ function main()
 
 # Run the program
 main
+
