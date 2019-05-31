@@ -11,3 +11,7 @@ past_due_with_no_latefee
 zero_current_balance
 current_payment_greater_than_current_balance
 no_primary_branch
+transferred_to_sps
+unserviceable_logged_in_accounts
+sold_to_lendmark
+
