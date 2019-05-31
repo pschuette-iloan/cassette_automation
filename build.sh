@@ -199,6 +199,34 @@ function fill_empty_files() {
 }
 
 #
+# find all the files that match the baseline counterpart and remove
+#
+function remove_baseline_dupes() {
+
+    baseline_path="$output/baseline"
+
+    for scenario in "${scenarios[@]}"
+    do
+    if [ "$scenario" == "happy_path" ]; then
+# Ignore the happy path scenario
+        continue
+    fi
+
+# Compare all the files in scenario directory to files in baseline
+# If they have the same content, remove them
+    scenario_path=$output/$scenario
+    for file in $(ls $scenario_path)
+    do
+# If files are the same, boot the scenario file
+    cmp --silent $scenario_path/$file $baseline_path/$file && rm $scenario_path/$file || echo "Unique scenario file: $scenario - $file"
+    done
+    done
+# Good house keeping
+    unset baseline_path
+    unset scenario_path
+}
+
+#
 # Prepare output for iOS cassettes
 #
 function prepare_ios() {
@@ -258,7 +286,7 @@ function main()
         clean_dir $temp
 
         # Make a directory for the scenario in the output
-        scenario_dir="$(pwd)/.output/$scenario"
+        scenario_dir="$output"/"$scenario"
 
         mkdir $scenario_dir
 
@@ -286,6 +314,10 @@ function main()
 
 # Move happy_path scenario to baseline
     mv "$output"/happy_path "$output"/baseline
+
+# Remove the files in each scenario that are identical to baseline
+    remove_baseline_dupes
+
 # Prepare the ios product
     prepare_ios
     prepare_android
