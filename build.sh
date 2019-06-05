@@ -15,6 +15,18 @@ android_product="$(pwd)/cassettes"
 
 # TODO: Check dependencies
 
+# Read the calling flags
+while getopts "s:" OPTION; do
+    case "${OPTION}" in
+        s)
+            passed_scenario=${OPTARG}
+            echo "Passed Scenario: $passed_scenario"
+            ;;
+        *)
+            echo Unrecognized argument!
+    esac
+done
+
 #
 # Create directory or remove contents
 #
@@ -34,11 +46,30 @@ function clean_dir() {
 function read_scenarios() {
 # $1 = scenarios.txt file
     echo "reading scenarios from: $1"
-    scenarios=( )
+
     while IFS= read value
     do
         scenarios+=($value)
     done < $1
+}
+
+#
+# Setup the scenarios
+#
+
+function setup_scenarios() {
+
+    scenarios=( )
+
+# If the scenario flag was passed, populate
+
+# If not, read from the scenarios file
+    if [ -z "$passed_scenario" ]
+    then read_scenarios "$(pwd)/scenarios.txt"
+    else
+        scenarios+=("happy_path")
+        scenarios+=($passed_scenario)
+    fi
 }
 
 #
@@ -185,6 +216,8 @@ function end_session() {
     unset challenge_id
     unset account_id
     unset args
+    unset bank_account_id
+    unset payment_account_id
 }
 
 #
@@ -261,7 +294,7 @@ function main()
     #
     # 1. get a list of all the scenarios
     #
-    read_scenarios "$(pwd)/scenarios.txt"
+    setup_scenarios
 
     #
     # 2. get the standard headers as variables
@@ -327,3 +360,5 @@ function main()
 # Run the program
 main
 
+
+exit 0
