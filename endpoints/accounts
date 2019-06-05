@@ -5,4 +5,8 @@ data=""
 function on_success() {
 	account_id=$(cat $3/$output_file | jq -r '.data[0]."id"')
 	echo "Account ID: $account_id"
+	
+	# Find a cancelable payment
+	cancelable_payment_id=$(cat $3/$output_file | jq -r 'first(.included[] | select(.type=="payments" and .attributes.cancelable==true)) | .id')
+	echo "Cancelable Payment ID: $cancelable_payment_id"
 }
