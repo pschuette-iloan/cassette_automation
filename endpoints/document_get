@@ -1,0 +1,4 @@
+output_file='Document.json'			
+endpoint_destination="/api/v1/accounts/$account_id/documents/$document_id"
+method='GET' 			# Pick one
+data=""		# Be sure to flatten and escape

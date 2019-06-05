@@ -1,0 +1,8 @@
+output_file='PostPayment.json'
+endpoint_destination="/api/v1/accounts/$account_id/payments"
+method='POST'
+data="{\"data\":{\"type\":\"payments\",\"attributes\":{\"date\":\"2018-01-02\",\"amount\":230.0,\"agree-to-terms\":true},\"relationships\":{\"payment-account\":{\"data\":{\"id\":\"$bank_account_id\",\"type\":\"bank-accounts\"}}}}}"
+function on_success() {	
+        payment_id=$(cat $3/$output_file | jq -r '.data.id')
+        echo "Payment ID: $payment_id"
+}

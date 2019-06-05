@@ -1,0 +1,7 @@
+output_file='DeleteDebitCard.json'
+endpoint_destination="/api/debit-cards/$debit_card_id"
+method='DELETE' 
+data=""	
+function on_success() {	
+	unset debit_card_id
+}
