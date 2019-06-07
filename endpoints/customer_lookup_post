@@ -1,0 +1,4 @@
+output_file='PostCustomerLookups.json'
+endpoint_destination='/api/v1/customer-lookups' # Do not include host
+method='POST'
+data="{\"data\":{\"attributes\":{\"first-name\":\"blah\",\"last-name\":\"blah\",\"account-number\":\"$account_id\",\"ssn-last4\":\"1234\",\"zip\":\"12345\"}}}"

@@ -1,0 +1,8 @@
+output_file='DocumentSummary.json'		
+endpoint_destination="/api/v1/accounts/$account_id/documents"
+method='GET'
+data=""				
+function on_success() {
+	document_id=$(cat $3/$output_file | jq -r '.data[0]."id"')
+	echo "Document ID: $document_id"
+}

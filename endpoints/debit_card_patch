@@ -1,0 +1,4 @@
+output_file='PatchDebitCard.json'
+endpoint_destination="/api/v1/debit-cards/$debit_card_id"
+method=PATCH'
+data="{\"data\":{\"attributes\":{\"primary\":true}}}"

@@ -1,0 +1,7 @@
+output_file='DeletePayment.json'
+endpoint_destination="/api/v1/accounts/$account_id/payments/$cancelable_payment_id" 
+method='DELETE' 
+data=""
+function on_success() {	
+	unset cancelable_payment_id
+}

@@ -9,11 +9,24 @@ cookies="$temp/cookies.txt"
 session_dir="$(pwd)/session"
 endpoints_dir="$(pwd)/endpoints"
 headers_cfg="$(pwd)/headers"
+ignore_file="$(pwd)/ignore_files.txt"
 baseurl="https://mobile02.onemain.financial"
 ios_product="$(pwd)/Cassettes.bundle"
 android_product="$(pwd)/cassettes"
 
 # TODO: Check dependencies
+
+# Read the calling flags
+while getopts "s:" OPTION; do
+    case "${OPTION}" in
+        s)
+            passed_scenario=${OPTARG}
+            echo "Passed Scenario: $passed_scenario"
+            ;;
+        *)
+            echo Unrecognized argument!
+    esac
+done
 
 #
 # Create directory or remove contents
@@ -34,11 +47,30 @@ function clean_dir() {
 function read_scenarios() {
 # $1 = scenarios.txt file
     echo "reading scenarios from: $1"
-    scenarios=( )
+
     while IFS= read value
     do
         scenarios+=($value)
     done < $1
+}
+
+#
+# Setup the scenarios
+#
+
+function setup_scenarios() {
+
+    scenarios=( )
+
+# If the scenario flag was passed, populate
+
+# If not, read from the scenarios file
+    if [ -z "$passed_scenario" ]
+    then read_scenarios "$(pwd)/scenarios.txt"
+    else
+        scenarios+=("happy_path")
+        scenarios+=($passed_scenario)
+    fi
 }
 
 #
@@ -148,6 +180,10 @@ function prepare_session() {
     echo "Challenge Type: $challenge_type"
     echo "Challenge ID: $challenge_id"
 
+    if [ "$challenge_type" == "multi-factor-authentications" ]; then
+    call_endpoint $1 $endpoints_dir/resend_mfa $3
+    fi
+
     # Source arguments for challenge questions
     source "$session_dir"/challenges_verification
     # Answer challenge question
@@ -185,6 +221,19 @@ function end_session() {
     unset challenge_id
     unset account_id
     unset args
+    unset bank_account_id
+    unset payment_account_id
+}
+
+#
+# Due to disco limitations, some files may need to be removed
+# These will be defaulted to baseline
+#
+function remove_special_case_files() {
+    while IFS= read value
+    do
+    rm "$output"/"$value"
+    done < $ignore_file
 }
 
 #
@@ -261,7 +310,7 @@ function main()
     #
     # 1. get a list of all the scenarios
     #
-    read_scenarios "$(pwd)/scenarios.txt"
+    setup_scenarios
 
     #
     # 2. get the standard headers as variables
@@ -309,6 +358,8 @@ function main()
         end_session $scenario $scenario_dir
     done
 
+# Remove the special case files
+    remove_special_case_files
 # File the empty files in the output
     fill_empty_files
 
@@ -327,3 +378,5 @@ function main()
 # Run the program
 main
 
+
+exit 0

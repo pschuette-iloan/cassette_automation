@@ -16,4 +16,13 @@ no_primary_branch
 transferred_to_sps
 unserviceable_logged_in_accounts
 sold_to_lendmark
-
+ach_debit_both_primary
+pending_payments_1
+challenge_question_system_error
+no_accounts
+missing_document_date
+failure
+no_documents
+multifactor_auth_device_not_verified
+no_saved_accounts
+multifactor_auth_login
