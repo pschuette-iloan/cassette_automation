@@ -1,4 +1,4 @@
 output_file='ChallengesVerification.json'
 endpoint_destination='/api/v1/device-challenges'
 method='POST'
-data="{\"data\":{\"id\":\"$challenge_id\",\"type\":\"$challenge_type\",\"attributes\":{\"answer\":\"some_answer\"}}}"
+data="{\"data\":{\"id\":\"$challenge_id\",\"type\":\"$challenge_type\",\"attributes\":{\"answer\":\"123456\"}}}"

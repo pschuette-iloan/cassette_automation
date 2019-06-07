@@ -9,6 +9,7 @@ cookies="$temp/cookies.txt"
 session_dir="$(pwd)/session"
 endpoints_dir="$(pwd)/endpoints"
 headers_cfg="$(pwd)/headers"
+ignore_file="$(pwd)/ignore_files.txt"
 baseurl="https://mobile02.onemain.financial"
 ios_product="$(pwd)/Cassettes.bundle"
 android_product="$(pwd)/cassettes"
@@ -179,6 +180,10 @@ function prepare_session() {
     echo "Challenge Type: $challenge_type"
     echo "Challenge ID: $challenge_id"
 
+    if [ "$challenge_type" == "multi-factor-authentications" ]; then
+    call_endpoint $1 $endpoints_dir/resend_mfa $3
+    fi
+
     # Source arguments for challenge questions
     source "$session_dir"/challenges_verification
     # Answer challenge question
@@ -218,6 +223,17 @@ function end_session() {
     unset args
     unset bank_account_id
     unset payment_account_id
+}
+
+#
+# Due to disco limitations, some files may need to be removed
+# These will be defaulted to baseline
+#
+function remove_special_case_files() {
+    while IFS= read value
+    do
+    rm "$output"/"$value"
+    done < $ignore_file
 }
 
 #
@@ -342,6 +358,8 @@ function main()
         end_session $scenario $scenario_dir
     done
 
+# Remove the special case files
+    remove_special_case_files
 # File the empty files in the output
     fill_empty_files
 
